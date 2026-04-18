@@ -1,0 +1,63 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="MasterPage.master.cs" Inherits="CEMM.Web.MasterPage" %>
+<%@ Register Src="~/Controls/copyright.ascx" TagName="copyright" TagPrefix="uc1" %>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head id="Head1" runat="server">
+    <title><%= this.Page.Title %></title>
+    <link href="/style.css" type="text/css" rel="stylesheet" />
+    <asp:ContentPlaceHolder ID="head" runat="server">
+    </asp:ContentPlaceHolder>
+    <style type="text/css">
+        .auto-style1 {
+            height: 94px;
+        }
+        .auto-style2 {
+            height: 52px;
+            background-color: #4CAF50; /* 绿色背景 */
+            color: white; /* 白色文字 */
+            font-size: 35px; /* 字体大小 */
+            font-weight: bold; /* 粗体 */
+            text-align: center; /* 居中对齐 */
+            padding: 10px 0; /* 上下内边距 */
+        }
+        .eco-icon {
+            color:white ; /* 深绿色 */
+            margin-right: 12px; /* 在图标和文字之间添加间距 */
+            margin-left: 10px; /* 左侧留出空间 */
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+    </style>
+</head>
+<body>
+    <form id="form1" runat="server">
+    <div align="center">
+        <table cellspacing="0" cellpadding="5" border="0" style="width: 1253px; height: 203px;">
+            <tr>
+                <td bgcolor='<%=Application[Session["Style"].ToString()+"xtable_bgcolor"]%>'>
+                    <table cellspacing="0" bordercolordark='<%=Application[Session["Style"].ToString()+"xtable_bordercolordark"]%>'
+                        bordercolorlight='<%=Application[Session["Style"].ToString()+"xtable_bordercolorlight"]%>'
+                        cellpadding="5" width="100%" border="1">
+                        <tr bgcolor="#e4e4e4" >
+                            <td bgcolor='<%=Application[Session["Style"].ToString()+"xtable_titlebgcolor"]%>' align="left" class="auto-style2">
+                                
+                                 <i class="fas fa-leaf eco-icon"></i><%=TabTitle%>碳排放计算
+                                </td>
+                        </tr>
+                        <tr>
+                            <td class="auto-style1">
+                                <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+                                </asp:ContentPlaceHolder>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <uc1:copyright ID="copyright1" runat="server" />
+    </form>
+</body>
+</html>

@@ -1,0 +1,607 @@
+﻿mfid,name,code,specific,unit,energyfactor,machinefactor,standardid,energytype
+,功率 60kW  以内履带式推土机,8001001,T80（可以为空值）,台班（可以为空值）,3.096（可以为空值）,126.5（可以为空值）,s2025002（可以为空值）,1
+,王,123456,,,,,,
+,滕,127124,,,,,,
+# --- 能源类型说明 ---
+# 1 = 人工和机械工
+# 2 = 重油、汽油、柴油
+# 3 = 煤
+# 4 = 使用燃料的机械设备及车辆
+# 5 = 电
+# 6 = 使用电力的机械设备及车辆
+# 7 = 材料
+#
+# 注意：
+# 1. mfid字段为自增主键，导入时请留空
+# 2. name(机械名称)和code(机械代码)为必填字段
+# 3. 其他字段均为可选字段，可以为空
+# 4. code字段必须唯一，不能重复
+# 5. 导入前请删除本说明区域（以#开头的行）
+
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head id="Head1"><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><title>
+	数据库操作
+</title><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style type="text/css">
+        body {
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: #2c3e50;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+        
+        .search-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+            height: 40px;
+            box-sizing: border-box;
+        }
+        
+        .search-input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            height: 40px;
+        }
+        
+        .btn-primary {
+            background-color: #4CAF50;
+            color: white;
+            min-width: 100px;
+            
+        }
+        
+        .btn-primary:hover {
+            background-color: #3e8e41;
+        }
+        
+        .btn-secondary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-icon {
+        position: relative; /* 修改为相对定位 */
+        left: auto; /* 移除left定位 */
+        top: auto; /* 移除top定位 */
+        transform: none; /* 移除transform */
+        font-size: 14px;
+        margin-right: 8px; /* 添加右边距 */
+        }
+            /* 搜索按钮样式 */
+    .btn-search {
+        background-color: #4CAF50;
+        color: white;
+        min-width: 100px;
+        padding: 10px 20px 10px 40px; /* 左边距增加以容纳图标 */
+        position: relative;
+        border: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-search::before {
+        content: "🔍"; /* 使用Unicode搜索图标 */
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 16px;
+    }
+    
+    .btn-search:hover {
+        background-color: #3e8e41;
+    }
+        .file-upload-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .file-upload {
+            flex-grow: 1;
+        }
+        
+        .grid-view {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .grid-view th {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+        
+        .grid-view td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .grid-view tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .grid-view tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .grid-view .pager {
+            padding: 10px;
+            text-align: center;
+            background-color: #f5f5f5;
+            border-top: 1px solid #ddd;
+        }
+        
+        .grid-view .pager a {
+            padding: 5px 10px;
+            margin: 0 3px;
+            border-radius: 3px;
+            color: #333;
+            text-decoration: none;
+        }
+        
+        .grid-view .pager a:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .grid-view .pager span {
+            padding: 5px 10px;
+            margin: 0 3px;
+            border-radius: 3px;
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+            min-width: 0;
+        }
+        
+        .btn-edit {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background-color: #c0392b;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+            font-style: italic;
+        }
+        
+        .status-message {
+            padding: 10px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* 编辑模式样式 */
+        .edit-mode input[type="text"] {
+            width: 90%;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        
+        .edit-mode input[type="text"]:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        /* 命令按钮样式 */
+        .command-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .command-buttons .btn {
+            min-width: 60px;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <form name="form2" method="post" action="./machineCEFactor2cz.aspx" id="form2" enctype="multipart/form-data">
+<div>
+<input type="hidden" name="__EVENTTARGET" id="__EVENTTARGET" value="" />
+<input type="hidden" name="__EVENTARGUMENT" id="__EVENTARGUMENT" value="" />
+<input type="hidden" name="__LASTFOCUS" id="__LASTFOCUS" value="" />
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="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" />
+</div>
+
+<script type="text/javascript">
+//<![CDATA[
+var theForm = document.forms['form2'];
+if (!theForm) {
+    theForm = document.form2;
+}
+function __doPostBack(eventTarget, eventArgument) {
+    if (!theForm.onsubmit || (theForm.onsubmit() != false)) {
+        theForm.__EVENTTARGET.value = eventTarget;
+        theForm.__EVENTARGUMENT.value = eventArgument;
+        theForm.submit();
+    }
+}
+//]]>
+</script>
+
+
+<script src="/WebResource.axd?d=0Ym9fdbT3eGuI_4imZCd-O0kp-am6NAupA-9H5wTI0oDLVEOSIT7iwEHxjaMQf9QSXudfbdR_x8Q538l1P-vzSQiS5QfHi5SPzQXYjNFA041&amp;t=638883560380000000" type="text/javascript"></script>
+
+<div>
+
+	<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="12714272" />
+	<input type="hidden" name="__VIEWSTATEENCRYPTED" id="__VIEWSTATEENCRYPTED" value="" />
+	<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="C2UttfjPm6HaOeknp+ppEpT2PzD9mcTWSpqWJsSdNrUyLon/dve6HW/VgVqVJqUM4CKn4zPwiXachlVzlpSPa9zDJ+pSD/rJGl+gu+Gc6Kxw5+QU3N1g48jA7/zxT4rbkqQFr61tIpmrGar0CS9j4ujqsetQAZd6f3lWjMkUG0/5PQ/I3apSlfOlBY4Olf5X5o8N/nXPY0UtbDZEk1L9dxHJ2wMqQXccbCZRuO7xKLUbbTHNRXEOyuJY+JpiKncIKYIjPDSzFwkiaGMVztCNFcpydRrOZAaG8SUfOxKM9+EtoZMm8Se3D2g3S2MqnybpwKjkuHEb3+ZeO8k9d/+WCl56ouAVwAVP/ctuxonKdqW7jL6KsU/ZRsrysTnuZt6Fr9sFkWKeZdPGnYw4ksI4O6Pil6zuZihJ+VT4UToAzs6xhzP7hRblvuck1Hy2kx9JA/spwuggOEhRw38cQ2qJTBDaiq45bAicBawAZJ5rgwJyyjEMAF3HOGGcl+dE0YqACoqe5MGTNNYea1g/ev1x6XxRxaXJWJqMdlMOAK1waxEKiND+Z1rayU/W4EeAhkucvWdL7qNRoYkxKvoxCyk0QPxNq0vrqs6BJPl7B4+3XDFzuvQnayEtNu7qmFGYTWnu8pZ4pPD2FCqbGeLRYdUzGHJKxKfoM0xF8hvLy1odAsTvVX93z621XH/YLAQ828OevNqKeA6iTaa/eQkQTkKlIfyJc0cl8yaBImXJZ5vywxrJatlHQ5VTA1LhbgMovoO1BSXvL+4dVfSlR1/md7qU0Osm8UiH+SF55ztNp6hsOrM=" />
+</div>
+        <div class="container">
+            <h1 class="page-title">
+                <i class="fas fa-database" style="margin-right: 10px;"></i>数据库操作
+            </h1>
+            
+            
+            
+            <div class="card">
+               <div class="search-section">
+                    <input name="txtSearch" type="text" onchange="javascript:setTimeout(&#39;__doPostBack(\&#39;txtSearch\&#39;,\&#39;\&#39;)&#39;, 0)" onkeypress="if (WebForm_TextBoxKeyHandler(event) == false) return false;" id="txtSearch" class="search-input" placeholder="输入关键词搜索..." />
+                    <input type="submit" name="btnSearch" value="查询" id="btnSearch" class="btn btn-search" />
+                </div>
+                
+                <div class="file-upload-section">
+                    <input type="submit" name="btnDownloadTemplate" value="下载模板" id="btnDownloadTemplate" class="btn btn-secondary" />
+                    <input type="file" name="FileUpload1" id="FileUpload1" class="file-upload" accept=".csv" />
+                   
+                    <input type="submit" name="Button1" value="导入CSV" id="Button1" class="btn btn-secondary" />
+                    <input type="submit" name="Button4" value="导出CSV" id="Button4" class="btn btn-secondary" />
+                </div>
+            </div>
+            
+            <div class="card">
+                <div>
+	<table class="grid-view" cellspacing="0" rules="all" border="1" id="gvProjects1" style="border-collapse:collapse;">
+		<tr>
+			<th scope="col">ID</th><th scope="col">机械名称</th><th scope="col">机械代码</th><th scope="col">规格型号</th><th scope="col">单位</th><th scope="col">能源因子</th><th scope="col">机械因子</th><th scope="col">标准</th><th scope="col">能源类型</th><th scope="col">操作</th>
+		</tr><tr>
+			<td style="width:80px;">1</td><td>
+                                <span id="gvProjects1_ctl02_lblName">功率 60kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl02_lblCode">8001001</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl02_lblSpecific">T80</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl02_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl02_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl02_lblMachineFactor">126.500</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl02_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl02_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl02$btnEdit" value="修改" id="gvProjects1_ctl02_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl02$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl02_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">2</td><td>
+                                <span id="gvProjects1_ctl03_lblName">功率 75kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl03_lblCode">8001002</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl03_lblSpecific">TY100</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl03_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl03_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl03_lblMachineFactor">170.190</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl03_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl03_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl03$btnEdit" value="修改" id="gvProjects1_ctl03_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl03$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl03_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">3</td><td>
+                                <span id="gvProjects1_ctl04_lblName">功率 90kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl04_lblCode">8001003</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl04_lblSpecific">T120A</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl04_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl04_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl04_lblMachineFactor">202.390</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl04_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl04_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl04$btnEdit" value="修改" id="gvProjects1_ctl04_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl04$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl04_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">4</td><td>
+                                <span id="gvProjects1_ctl05_lblName">功率 105kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl05_lblCode">8001004</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl05_lblSpecific">T140-1 带松土器</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl05_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl05_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl05_lblMachineFactor">236.910</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl05_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl05_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl05$btnEdit" value="修改" id="gvProjects1_ctl05_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl05$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl05_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">5</td><td>
+                                <span id="gvProjects1_ctl06_lblName">功率 120kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl06_lblCode">8001005</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl06_lblSpecific"></span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl06_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl06_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl06_lblMachineFactor">275.980</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl06_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl06_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl06$btnEdit" value="修改" id="gvProjects1_ctl06_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl06$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl06_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">6</td><td>
+                                <span id="gvProjects1_ctl07_lblName">功率 135kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl07_lblCode">8001006</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl07_lblSpecific">T180 带松土器</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl07_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl07_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl07_lblMachineFactor">303.590</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl07_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl07_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl07$btnEdit" value="修改" id="gvProjects1_ctl07_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl07$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl07_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">7</td><td>
+                                <span id="gvProjects1_ctl08_lblName">功率 165kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl08_lblCode">8001007</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl08_lblSpecific">T220 带松土器</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl08_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl08_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl08_lblMachineFactor">372.600</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl08_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl08_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl08$btnEdit" value="修改" id="gvProjects1_ctl08_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl08$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl08_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">8</td><td>
+                                <span id="gvProjects1_ctl09_lblName">功率 240kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl09_lblCode">8001008</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl09_lblSpecific">SH320 带松土器</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl09_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl09_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl09_lblMachineFactor">540.470</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl09_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl09_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl09$btnEdit" value="修改" id="gvProjects1_ctl09_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl09$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl09_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">9</td><td>
+                                <span id="gvProjects1_ctl10_lblName">功率 320kW  以内履带式推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl10_lblCode">8001009</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl10_lblSpecific">带松土器</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl10_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl10_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl10_lblMachineFactor">726.790</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl10_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl10_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl10$btnEdit" value="修改" id="gvProjects1_ctl10_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl10$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl10_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr>
+			<td style="width:80px;">10</td><td>
+                                <span id="gvProjects1_ctl11_lblName">功率 105kW  以内湿地推土机</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl11_lblCode">8001010</span>
+                            </td><td>
+                                <span id="gvProjects1_ctl11_lblSpecific">TS140</span>
+                            </td><td style="width:80px;">
+                                <span id="gvProjects1_ctl11_lblUnit">台班</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl11_lblEnergyFactor">3.0960</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl11_lblMachineFactor">236.910</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl11_lblStandardId">s2025002</span>
+                            </td><td style="width:100px;">
+                                <span id="gvProjects1_ctl11_lblEnergyType">4</span>
+                            </td><td style="width:150px;">
+                                <div class="command-buttons">
+                                    <input type="submit" name="gvProjects1$ctl11$btnEdit" value="修改" id="gvProjects1_ctl11_btnEdit" class="btn btn-sm btn-edit" />
+                                    <input type="submit" name="gvProjects1$ctl11$btnDelete" value="删除" onclick="return confirm(&#39;确定要删除这条记录吗？&#39;);" id="gvProjects1_ctl11_btnDelete" class="btn btn-sm btn-delete" />
+                                </div>
+                            </td>
+		</tr><tr class="pager">
+			<td colspan="10"><table border="0">
+				<tr>
+					<td><span>1</span></td><td><a href="javascript:__doPostBack(&#39;gvProjects1&#39;,&#39;Page$2&#39;)">2</a></td><td><a href="javascript:__doPostBack(&#39;gvProjects1&#39;,&#39;Page$3&#39;)">3</a></td><td><a href="javascript:__doPostBack(&#39;gvProjects1&#39;,&#39;Page$4&#39;)">4</a></td><td><a href="javascript:__doPostBack(&#39;gvProjects1&#39;,&#39;Page$5&#39;)">5</a></td><td><a href="javascript:__doPostBack(&#39;gvProjects1&#39;,&#39;Page$6&#39;)">...</a></td><td><a href="javascript:__doPostBack(&#39;gvProjects1&#39;,&#39;Page$Last&#39;)">末页</a></td>
+				</tr>
+			</table></td>
+		</tr>
+	</table>
+</div>
+                <br />
+                <input type="submit" name="Button2" value="返  回" id="Button2" style="color:White;background-color:#009933;margin-left: 29px" />
+            </div>
+        </div>
+    </form>
+</body>
+</html>
