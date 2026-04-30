@@ -125,18 +125,27 @@ namespace CEMM.DAL
 		/// </summary>
 		public bool DeleteList(string itermidlist )
 		{
-			StringBuilder strSql=new StringBuilder();
-			strSql.Append("delete from quotaEngiInfo ");
-			strSql.Append(" where itermid in ("+itermidlist + ")  ");
-			int rows=DbHelperSQL.ExecuteSql(strSql.ToString());
-			if (rows > 0)
-			{
-				return true;
-			}
-			else
-			{
+			if (string.IsNullOrWhiteSpace(itermidlist))
 				return false;
+
+			string[] ids = itermidlist.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+			if (ids.Length == 0)
+				return false;
+
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("delete from quotaEngiInfo where itermid in (");
+			SqlParameter[] parameters = new SqlParameter[ids.Length];
+			for (int i = 0; i < ids.Length; i++)
+			{
+				string pname = "@iid" + i;
+				if (i > 0) strSql.Append(",");
+				strSql.Append(pname);
+				parameters[i] = new SqlParameter(pname, SqlDbType.NVarChar, 15);
+				parameters[i].Value = ids[i].Trim();
 			}
+			strSql.Append(")");
+			int rows=DbHelperSQL.ExecuteSql(strSql.ToString(), parameters);
+			return rows > 0;
 		}
 
 
@@ -324,6 +333,18 @@ namespace CEMM.DAL
                 strSql.Append(" where " + strWhere);
             }
             return DbHelperSQL.Query(strSql.ToString());
+        }
+
+        /// <summary>
+        /// 按名称模糊查询（参数化）
+        /// </summary>
+        public DataSet GetListByItermName(string itermname)
+        {
+            string sql = "select itermid,itermname,itermlevel,standard,baseinfo from quotaEngiInfo where itermname like @itermname and itermlevel=3";
+            SqlParameter[] parameters = {
+                new SqlParameter("@itermname", SqlDbType.NVarChar, 100) { Value = "%" + itermname + "%" }
+            };
+            return DbHelperSQL.Query(sql, parameters);
         }
 		#endregion  ExtensionMethod
 	}

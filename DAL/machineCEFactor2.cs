@@ -148,18 +148,27 @@ namespace CEMM.DAL
 		/// </summary>
 		public bool DeleteList(string mfidlist )
 		{
-			StringBuilder strSql=new StringBuilder();
-			strSql.Append("delete from machineCEFactor2 ");
-			strSql.Append(" where mfid in ("+mfidlist + ")  ");
-			int rows=DbHelperSQL.ExecuteSql(strSql.ToString());
-			if (rows > 0)
-			{
-				return true;
-			}
-			else
-			{
+			if (string.IsNullOrWhiteSpace(mfidlist))
 				return false;
+
+			string[] ids = mfidlist.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+			if (ids.Length == 0)
+				return false;
+
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("delete from machineCEFactor2 where mfid in (");
+			SqlParameter[] parameters = new SqlParameter[ids.Length];
+			for (int i = 0; i < ids.Length; i++)
+			{
+				string pname = "@mid" + i;
+				if (i > 0) strSql.Append(",");
+				strSql.Append(pname);
+				parameters[i] = new SqlParameter(pname, SqlDbType.Int, 4);
+				parameters[i].Value = int.Parse(ids[i].Trim());
 			}
+			strSql.Append(")");
+			int rows=DbHelperSQL.ExecuteSql(strSql.ToString(), parameters);
+			return rows > 0;
 		}
 
 
@@ -399,7 +408,7 @@ namespace CEMM.DAL
         {
             StringBuilder strSql = new StringBuilder();
             strSql.Append("select top 1 mfid,name,code,specific,unit,energyfactor,machinefactor,standardid,energytype from machineCEFactor2 ");
-            strSql.Append(" where name like '@name%' ");
+            strSql.Append(" where name like @name + '%'");
             SqlParameter[] parameters = {
         new SqlParameter("@name", SqlDbType.NVarChar,50)};
             parameters[0].Value = name;
@@ -574,7 +583,34 @@ namespace CEMM.DAL
             
             return DbHelperSQL.Query(strSql.ToString());
         }
-        
+
+        /// <summary>
+        /// 按名称关键字模糊查询（参数化）
+        /// </summary>
+        public DataSet GetListByKeyword(string keyword)
+        {
+            string sql = "select mfid,name,code,specific,unit,energyfactor,machinefactor,standardid,energytype from machineCEFactor2 where name like @keyword";
+            SqlParameter[] parameters = {
+                new SqlParameter("@keyword", SqlDbType.NVarChar, 50) { Value = "%" + keyword + "%" }
+            };
+            return DbHelperSQL.Query(sql, parameters);
+        }
+
+        /// <summary>
+        /// 按名称模糊查询，返回前1条记录（参数化）
+        /// </summary>
+        public CEMM.Model.machineCEFactor2 GetFirstModelByKeyword(string keyword)
+        {
+            string sql = "select top 1 mfid,name,code,specific,unit,energyfactor,machinefactor,standardid,energytype from machineCEFactor2 where name like @keyword";
+            SqlParameter[] parameters = {
+                new SqlParameter("@keyword", SqlDbType.NVarChar, 50) { Value = "%" + keyword + "%" }
+            };
+            DataSet ds = DbHelperSQL.Query(sql, parameters);
+            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                return DataRowToModelWithEnergyType(ds.Tables[0].Rows[0]);
+            return null;
+        }
+
         // 新增方法：DataRow转换为包含energytype的Model
        /* public CEMM.Model.machineCEFactor2 DataRowToModelWithEnergyType(DataRow row)
         {
@@ -656,8 +692,8 @@ namespace CEMM.DAL
             {
                 strSql.Append(" top " + Top.ToString());
             }
-            strSql.Append(" tableID,tableName,inputTime ");
-            strSql.Append(" FROM computeResultTabInfo ");
+            strSql.Append(" mfid,name,code,specific,unit,energyfactor,machinefactor,standardid,energytype ");
+            strSql.Append(" FROM machineCEFactor2 ");
             if (strWhere.Trim() != "")
             {
                 strSql.Append(" where " + strWhere);

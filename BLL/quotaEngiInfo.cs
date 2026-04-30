@@ -168,8 +168,7 @@ namespace CEMM.BLL
         /// </summary>
         public DataSet GetListByname(string itermname)
         {
-            string strWhere = "itermname like '%" + itermname + "%' and itermlevel=3";
-            return dal.GetList(strWhere);
+            return dal.GetListByItermName(itermname);
         }
 
 

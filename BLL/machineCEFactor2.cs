@@ -215,16 +215,12 @@ namespace CEMM.BLL
         public DataSet GetListByNameOrCode(string keyword)
         {
             // 构建查询条件
-            string strWhere = "";
-
             if (!string.IsNullOrEmpty(keyword))
             {
-                // 按名称(name)模糊查询
-                strWhere = "(name like '%" + keyword + "%' )";
+                return dal.GetListByKeyword(keyword);
             }
 
-            // 调用DAL层的GetList方法
-            return dal.GetList(strWhere);
+            return dal.GetList("");
         }
 
         #region 新增的Add方法
@@ -372,19 +368,7 @@ namespace CEMM.BLL
         // 在 machineCEFactor2 BLL 类中添加这个方法2025.9.5
         public CEMM.Model.machineCEFactor2 GetListByNameOrCode2(string name)
         {
-            // 先尝试按名称查找
-            string strWhere = "name LIKE '%" + name.Replace("'", "''") + "%'";
-            DataSet ds = dal.GetListWithEnergyType(strWhere);
-
-            if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
-            {
-                return dal.DataRowToModelWithEnergyType(ds.Tables[0].Rows[0]);
-            }
-
-            // 如果按名称没找到，尝试按代码查找（如果需要）
-            // 这里可以根据您的具体需求调整查找逻辑
-
-            return null;
+            return dal.GetFirstModelByKeyword(name);
         }
         // 在BLL层检查这个方法
        

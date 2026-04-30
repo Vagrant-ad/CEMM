@@ -158,18 +158,27 @@ namespace CEMM.DAL
 		/// </summary>
 		public bool DeleteList(string sridlist )
 		{
-			StringBuilder strSql=new StringBuilder();
-			strSql.Append("delete from quotaData ");
-			strSql.Append(" where srid in ("+sridlist + ")  ");
-			int rows=DbHelperSQL.ExecuteSql(strSql.ToString());
-			if (rows > 0)
-			{
-				return true;
-			}
-			else
-			{
+			if (string.IsNullOrWhiteSpace(sridlist))
 				return false;
+
+			string[] ids = sridlist.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+			if (ids.Length == 0)
+				return false;
+
+			StringBuilder strSql=new StringBuilder();
+			strSql.Append("delete from quotaData where srid in (");
+			SqlParameter[] parameters = new SqlParameter[ids.Length];
+			for (int i = 0; i < ids.Length; i++)
+			{
+				string pname = "@sid" + i;
+				if (i > 0) strSql.Append(",");
+				strSql.Append(pname);
+				parameters[i] = new SqlParameter(pname, SqlDbType.Int, 4);
+				parameters[i].Value = int.Parse(ids[i].Trim());
 			}
+			strSql.Append(")");
+			int rows=DbHelperSQL.ExecuteSql(strSql.ToString(), parameters);
+			return rows > 0;
 		}
 
 
